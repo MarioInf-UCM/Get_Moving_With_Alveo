@@ -92,8 +92,57 @@ OpenCL Initialization : 262.374 ms
 
 Some things to try to build on this experiment:
 
-1. Use the **xbutil** utility to query the board. Can you see which `.xclbin` file is loaded?
-2. Again using **xbutil**, which kernel(s) are present in the FPGA? Do you see a difference before and after the FPGA is programmed?
+> ### Exercise 1 - Use the **xbutil** utility to query the board. Can you see which `.xclbin` file is loaded?
+> 
+> You can see the command info in the next [page](https://xilinx.github.io/XRT/master/html/xbutil.html). Using the command *xbutil examine* to see info boute the system, the XRT used and the devices connected too (even the DBF number). We will use the next parameters:
+> - The *-d "BDF"* parameter show us info about a concrete device.
+> - The *-r dynamic-regions* shw us info about the different kernels running in the device.
+>  
+> Then, you can see a example of execution and its result, where *0000:ab:00.1* is the DBF of out device: 
+> 
+> 
+> ```BASH
+> :$ xbutil reset -d 0000:ab:00.1
+> Performing 'HOT Reset' on '0000:ab:00.1'
+> Are you sure you wish to proceed? [Y/n]: Y
+> Successfully reset Device[0000:ab:00.1]
+>
+> :$ xbutil examine -d 0000:ab:00.1 -r dynamic-regions
+> -------------------------------------------------
+> [0000:ab:00.1] : xilinx_u200_gen3x16_xdma_base_2
+> -------------------------------------------------
+>   Device Status: HEALTHY
+>   Hardware Context ID: 0
+>     Xclbin UUID: 7E514924-C4B8-6A97-7C2F-DEF023F9116F
+>     PL Compute Units
+>       Index  Name                                 Base Address  Usage  Status  
+>       -------------------------------------------------------------------------
+>       0      resize_blur_rgb:resize_blur_rgb_1    0x1090000     0      (IDLE)  
+>       1      resize_accel_rgb:resize_accel_rgb_1  0xc10000      0      (IDLE)  
+>       2      vadd:vadd_1                          0xc20000      0      (IDLE)  
+>       3      wide_vadd:wide_vadd_1                0x10a0000     0      (IDLE)  
+> ```
+> 
+> The *.xclbin* file loaded is indicated with a *UUID*. This number correspond with the *UUID* indicate into corresponding *.xclbin.info* file generated during the kernels compilation.
+
+> ### Exercise 2 - Again using **xbutil**, which kernel(s) are present in the FPGA? Do you see a difference before and after the FPGA is programmed?
+>
+> In the previous exercise we can see how using the command *xbutil examine -d "BDF" -r dynamic-regions* the system show us information about a concrete target. In this case, the device have 4 different kernels installed called: *resize_blur_rgb_1*, *resize_accel_rgb_1*, *vadd_1* and *wide_vadd_1*.
+> 
+> If we want reset the device, we must used the command *xbutil reset -d "BDF"*. After this, the device will not have any kernel downloaded.
+> ```BASH
+> :$ xbutil reset -d 0000:ab:00.1
+> Performing 'HOT Reset' on '0000:ab:00.1'
+> Are you sure you wish to proceed? [Y/n]: Y
+> Successfully reset Device[0000:ab:00.1]
+>
+> :$ xbutil examine -d 0000:ab:00.1 -r dynamic-regions
+> -------------------------------------------------
+> [0000:ab:00.1] : xilinx_u200_gen3x16_xdma_base_2
+> -------------------------------------------------
+>   Device Status: HEALTHY
+>   No hardware contexts running on device
+> ```
 
 ## Key Takeaways
 
