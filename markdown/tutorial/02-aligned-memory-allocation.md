@@ -88,8 +88,63 @@ As expected in this use case, the software runtime is the same. We are changing 
 
 Some things to try to build on this experiment:
 
-- Once again vary the size of the buffers allocated. Do the relationships that you derived in the previous example still hold true?
-- Experiment with other methods of allocating aligned memory (not the OCL API). Do you see differences between the approaches, beyond minor run-to-run fluctuations?
+> #### Exercise 1 - Once again vary the size of the buffers allocated. Do the relationships that you derived in the previous example still hold true?
+>
+> Default size `#define BUFSIZE (1024 * 1024 * 6)`
+> ```BASH
+> --------------- Key execution times (6291456 MiB) ---------------
+>                                       Example 01   Example 02
+> OpenCL Initialization              : 1197.053 ms : 1162.952 ms
+> Allocating memory buffer           :    0.026 ms :    0.025 ms
+> Populating buffer inputs           :   50.523 ms :   53.730 ms
+> Software VADD run                  :   33.894 ms :   34.777 ms
+> Map host buffers to OpenCL buffers :    0.020 ms :    0.016 ms
+> Set kernel arguments               :    9.689 ms :   58.338 ms
+> Memory object migration enqueue    :   22.034 ms :  180.200 ms
+> OCL Enqueue task                   :    0.205 ms :    0.201 ms
+> Wait for kernel to complete        :   96.396 ms :   96.446 ms
+> Read back computation results      :    2.505 ms :   54.741 ms
+> ```
+>
+> Double default size `#define BUFSIZE (1024 * 1024 * 6) * 2`
+>
+> ```BASH
+>--------------- Key execution times (12582912 MiB) ---------------
+>                                       Example 01   Example 02
+> OpenCL Initialization              : 1135.735 ms : 1158.464 ms
+> Allocating memory buffer           :    0.030 ms :    0.025 ms
+> Populating buffer inputs           :  100.639 ms :  105.827 ms
+> Software VADD run                  :   67.462 ms :   70.819 ms
+> Map host buffers to OpenCL buffers :    0.019 ms :    0.018 ms
+> Set kernel arguments               :   19.196 ms :  113.567 ms
+> Memory object migration enqueue    :  158.891 ms :  161.603 ms
+> OCL Enqueue task                   :    0.210 ms :    0.208 ms
+> Wait for kernel to complete        :  192.275 ms :  192.193 ms
+> Read back computation results      :    4.598 ms :   97.505 ms
+> ```
+> 
+> Four time the default size `#define BUFSIZE (1024 * 1024 * 6) * 4`
+> 
+> ```BASH
+> --------------- Key execution times (25165824 MiB) ---------------
+>                                       Example 01   Example 02
+> OpenCL Initialization              : 1158.046 ms : 1138.450 ms
+> Allocating memory buffer           :    0.028 ms :    0.026 ms
+> Populating buffer inputs           :  203.299 ms :  212.699 ms
+> Software VADD run                  :  135.488 ms :  139.106 ms
+> Map host buffers to OpenCL buffers :    0.020 ms :    0.022 ms
+> Set kernel arguments               :   39.324 ms :  221.543 ms
+> Memory object migration enqueue    :  241.237 ms :  178.225 ms
+> OCL Enqueue task                   :    0.257 ms :    0.270 ms
+> Wait for kernel to complete        :  384.059 ms :  383.957 ms
+> Read back computation results      :    8.955 ms :  165.679 ms
+> ```
+>
+> Comparing the results with the last exercise, we can see a few keys that increase more slowly, such each *Set kernel arguments* or *Read back computation results*. However, this keys costs continue to increase linearly with the size of vector.
+
+
+
+> #### Exercise 2 - Experiment with other methods of allocating aligned memory (not the OCL API). Do you see differences between the approaches, beyond minor run-to-run fluctuations?
 
 ## Key Takeaways
 

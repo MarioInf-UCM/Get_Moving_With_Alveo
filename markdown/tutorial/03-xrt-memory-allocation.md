@@ -161,10 +161,70 @@ In general, buffers should be allocated outside the critical path of your applic
 
 Some things to try to build on this experiment:
 
-- Once again, vary the size of the buffers allocated. Do the relationships that you derived in the previous
-  example still hold true?
-- Experiment with other sequences for allocating memory and enqueuing transfers.
-- What happens if you modify the input buffer and run the kernel a second time?
+> #### Exercise 1 - Once again, vary the size of the buffers allocated. Do the relationships that you derived in the previous example still hold true?
+> 
+> Default size `#define BUFSIZE (1024 * 1024 * 6)`
+> ```BASH
+> --------------- Key execution times (6291456 MiB) ---------------
+>                                       Example 01   Example 02    Example 03
+> OpenCL Initialization              : 1197.053 ms : 1162.952 ms : 1147.567 ms
+> Allocating memory buffer           :    0.026 ms :    0.025 ms :    8.370 ms
+> Populating buffer inputs           :   50.523 ms :   53.730 ms :   25.202 ms
+> Software VADD run                  :   33.894 ms :   34.777 ms :    8.342 ms
+> Map host buffers to OpenCL buffers :    0.020 ms :    0.016 ms :   13.903 ms
+> Set kernel arguments               :    9.689 ms :   58.338 ms :   14.613 ms
+> Memory object migration enqueue    :   22.034 ms :  180.200 ms :    7.002 ms
+> OCL Enqueue task                   :    0.205 ms :    0.201 ms :    0.273 ms
+> Wait for kernel to complete        :   96.396 ms :   96.446 ms :   96.419 ms
+> Read back computation results      :    2.505 ms :   54.741 ms :    2.502 ms
+> ```
+>
+> Double default size `#define BUFSIZE (1024 * 1024 * 6) * 2`
+>
+> ```BASH
+>--------------- Key execution times (12582912 MiB) ---------------
+>                                       Example 01   Example 02    Example 03
+> OpenCL Initialization              : 1135.735 ms : 1158.464 ms : 1038.784 ms
+> Allocating memory buffer           :    0.030 ms :    0.025 ms :   16.800 ms
+> Populating buffer inputs           :  100.639 ms :  105.827 ms :   50.818 ms
+> Software VADD run                  :   67.462 ms :   70.819 ms :   15.975 ms
+> Map host buffers to OpenCL buffers :    0.019 ms :    0.018 ms :   33.063 ms
+> Set kernel arguments               :   19.196 ms :  113.567 ms :   32.103 ms
+> Memory object migration enqueue    :  158.891 ms :  161.603 ms :   10.144 ms
+> OCL Enqueue task                   :    0.210 ms :    0.208 ms :    0.224 ms
+> Wait for kernel to complete        :  192.275 ms :  192.193 ms :  192.269 ms
+> Read back computation results      :    4.598 ms :   97.505 ms :    4.627 ms
+> ```
+> 
+> Four time the default size `#define BUFSIZE (1024 * 1024 * 6) * 4`
+> 
+> ```BASH
+> --------------- Key execution times (25165824 MiB) ---------------
+>                                       Example 01   Example 02    Example 03
+> OpenCL Initialization              : 1158.046 ms : 1138.450 ms : 1081.914 ms
+> Allocating memory buffer           :    0.028 ms :    0.026 ms :   33.092 ms
+> Populating buffer inputs           :  203.299 ms :  212.699 ms :  100.141 ms
+> Software VADD run                  :  135.488 ms :  139.106 ms :   15.869 ms
+> Map host buffers to OpenCL buffers :    0.020 ms :    0.022 ms :   57.590 ms
+> Set kernel arguments               :   39.324 ms :  221.543 ms :   56.751 ms
+> Memory object migration enqueue    :  241.237 ms :  178.225 ms :   23.479 ms
+> OCL Enqueue task                   :    0.257 ms :    0.270 ms :    0.220 ms
+> Wait for kernel to complete        :  384.059 ms :  383.957 ms :  383.899 ms
+> Read back computation results      :    8.955 ms :  165.679 ms :    8.662 ms
+> ```
+
+
+
+> #### Exercise 2 - Experiment with other sequences for allocating memory and enqueuing transfers.
+>
+> 
+
+
+> #### Exercise 3 - What happens if you modify the input buffer and run the kernel a second time?
+>
+> 
+
+
 
 ## Key Takeaways
 

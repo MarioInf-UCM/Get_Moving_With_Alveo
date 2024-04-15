@@ -1,0 +1,82 @@
+{
+    "name": "Xilinx Closed Form Black 76 Model", 
+    "description": "L2 Closed Form Black 76 Model", 
+    "flow": "vitis", 
+    "platform_type": "pcie", 
+    "platform_whitelist": [
+        "u250", 
+        "u200"
+    ], 
+    "platform_blacklist": [
+        "zc"
+    ], 
+    "launch": [
+        {
+            "target": "hw_emu",
+            "cmd_args": " BUILD/b76_kernel.xclbin 16",
+            "name": "hw_emu-launch"
+        },
+        {
+            "target": "sw_emu",
+            "cmd_args": " BUILD/b76_kernel.xclbin 16384", 
+            "name": "sw_emu-launch"
+        },
+        {
+            "target": "hw",
+            "cmd_args": " BUILD/b76_kernel.xclbin 4194304", 
+            "name": "hw-launch"
+        }
+    ], 
+    "host": {
+        "host_exe": "b76_test.exe", 
+        "compiler": {
+            "sources": [
+                "LIB_DIR/ext/xcl2/xcl2.cpp",
+                "./src/host/b76_test.cpp", 
+                "./src/host/b76_model.cpp"
+            ], 
+            "includepaths" : [
+                "LIB_DIR/L2/include",
+                "LIB_DIR/ext/xcl2/"
+            ],
+            "options": "-O3 "
+        }
+    }, 
+    "v++" : {
+        "compiler" : {
+            "includepaths" : [
+                "LIB_DIR/L2/include"
+            ]
+        }
+    },
+    "containers": [
+        {
+            "accelerators": [
+                {
+                    "location": "src/kernel/b76_kernel.cpp", 
+                    "name": "b76_kernel"
+                }
+            ], 
+            "name": "b76_kernel"
+        }
+    ], 
+    "testinfo": {
+        "disable": false, 
+        "jobs": [
+            {
+                "index": 0, 
+                "dependency": [], 
+                "env": "", 
+                "cmd": "", 
+                "max_memory_MB": 32768, 
+                "max_time_min": 300
+            }
+        ], 
+        "targets": [
+            "vitis_sw_emu", 
+            "vitis_hw_emu", 
+            "vitis_hw"
+        ], 
+        "category": "canary"
+    }
+}

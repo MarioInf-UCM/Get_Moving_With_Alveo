@@ -92,7 +92,7 @@ OpenCL Initialization : 262.374 ms
 
 Some things to try to build on this experiment:
 
-> ### Exercise 1 - Use the **xbutil** utility to query the board. Can you see which `.xclbin` file is loaded?
+> #### Exercise 1 - Use the **xbutil** utility to query the board. Can you see which `.xclbin` file is loaded?
 > 
 > You can see the command info in the next [page](https://xilinx.github.io/XRT/master/html/xbutil.html). Using the command *xbutil examine* to see info boute the system, the XRT used and the devices connected too (even the DBF number). We will use the next parameters:
 > - The *-d "BDF"* parameter show us info about a concrete device.
@@ -125,7 +125,7 @@ Some things to try to build on this experiment:
 > 
 > The *.xclbin* file loaded is indicated with a *UUID*. This number correspond with the *UUID* indicate into corresponding *.xclbin.info* file generated during the kernels compilation.
 
-> ### Exercise 2 - Again using **xbutil**, which kernel(s) are present in the FPGA? Do you see a difference before and after the FPGA is programmed?
+> #### Exercise 2 - Again using **xbutil**, which kernel(s) are present in the FPGA? Do you see a difference before and after the FPGA is programmed?
 >
 > In the previous exercise we can see how using the command *xbutil examine -d "BDF" -r dynamic-regions* the system show us information about a concrete target. In this case, the device have 4 different kernels installed called: *resize_blur_rgb_1*, *resize_accel_rgb_1*, *vadd_1* and *wide_vadd_1*.
 > 

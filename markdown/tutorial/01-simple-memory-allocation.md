@@ -194,10 +194,85 @@ For now, establish a baseline:
 
 Some things to try to build on this experiment:
 
-- Vary the size of the buffers allocated. Can you derive an approximate relationship between buffer size and
-  the timing for individual operations? Do they all scale at the same rate?
-- If you remove synchronization between each step, what is the quantitative effect on the runtime?
-- What happens if you remove the synchronization after the final buffer copy from Alveo back to the host?
+> #### Exercise 1 - Vary the size of the buffers allocated. Can you derive an approximate relationship between buffer size and the timing for individual operations? Do they all scale at the same rate?
+>
+> Default size `#define BUFSIZE (1024 * 1024 * 6)`
+> ```BASH
+> --------------- Key execution times (6291456 MiB) ---------------
+> OpenCL Initialization              : 1162.952 ms
+> Allocating memory buffer           :    0.025 ms
+> Populating buffer inputs           :   53.730 ms
+> Software VADD run                  :   34.777 ms
+> Map host buffers to OpenCL buffers :    0.016 ms
+> Set kernel arguments               :   58.338 ms
+> Memory object migration enqueue    :  180.200 ms
+> OCL Enqueue task                   :    0.201 ms
+> Wait for kernel to complete        :   96.446 ms
+> Read back computation results      :   54.741 ms
+> ```
+>
+> Double default size `#define BUFSIZE (1024 * 1024 * 6) * 2`
+>
+> ```BASH
+>--------------- Key execution times (12582912 MiB) ---------------
+> OpenCL Initialization              : 1158.464 ms
+> Allocating memory buffer           :    0.025 ms
+> Populating buffer inputs           :  105.827 ms
+> Software VADD run                  :   70.819 ms
+> Map host buffers to OpenCL buffers :    0.018 ms
+> Set kernel arguments               :  113.567 ms
+> Memory object migration enqueue    :  161.603 ms
+> OCL Enqueue task                   :    0.208 ms
+> Wait for kernel to complete        :  192.193 ms
+> Read back computation results      :   97.505 ms
+> ```
+> 
+> Four time the default size `#define BUFSIZE (1024 * 1024 * 6) * 4`
+> 
+> ```BASH
+> --------------- Key execution times (25165824 MiB) ---------------
+> OpenCL Initialization              : 1138.450 ms
+> Allocating memory buffer           :    0.026 ms
+> Populating buffer inputs           :  212.699 ms
+> Software VADD run                  :  139.106 ms
+> Map host buffers to OpenCL buffers :    0.022 ms
+> Set kernel arguments               :  221.543 ms
+> Memory object migration enqueue    :  178.225 ms
+> OCL Enqueue task                   :    0.270 ms
+> Wait for kernel to complete        :  383.957 ms
+> Read back computation results      :  165.679 ms
+> ```
+>
+> Seeing the above results, we can deduce that exits two types of cost:
+> - The costs that increase linearly with the size of vector, such as *Set kernel arguments* or *Wait for kernel to complete*.
+> - The cost that not increase with the size of vector (or suffer a despicable increase), such as *Allocating memory buffer* or *OCL Enqueue task*
+
+> #### Exercise 2 - If you remove synchronization between each step, what is the quantitative effect on the runtime?
+>
+> For check this, we are going to change the deferent synchronous with only one, witch initial is in the beginning of the exercise and its finish in inmmediatly before to print the results. We can see this in the below code:
+>
+> ```C
+> // Initialize an event timer we'll use for monitoring the application
+> EventTimer et;
+> et.add("Total time");
+> .
+> .
+> .
+> et.finish();
+> std::cout << "--------------- Key execution times (" << BUFSIZE << " MiB) ---------------" << std::endl;
+> ```
+> 
+> ```BASH
+> --------------- Key execution times (6291456 MiB) ---------------
+> Total time : 1567.714 ms
+> ```
+> We can see how the time costs has been reduced thanks to remove the different synchronous steps, with respect to the previous execution when the vector had the default size. 
+
+
+> #### Exercise 3 - What happens if you remove the synchronization after the final buffer copy from Alveo back to the host?
+
+
+
 
 ## Key Takeaways
 

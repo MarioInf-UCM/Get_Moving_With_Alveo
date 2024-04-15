@@ -1,0 +1,132 @@
+{
+    "name": "Xilinx ZLIB Application For HBM Platforms",
+    "description": [
+        "ZLIB application for HBM resides in `L3/tests/zlib_hbm` directory."
+    ],
+    "flow": "vitis",
+    "platform_blacklist": [
+        "u250",
+        "vck",
+        "u200"
+    ],
+    "platform_whitelist": [
+        "u50_gen3x16"
+    ],
+    "launch": [
+        {
+            "cmd_args": "-sx BUILD/compress_decompress.xclbin -v PROJECT/sample.txt",
+            "name": "generic launch for all flows"
+        }
+    ],
+    "match_makefile": "false",
+    "match_ini": "false",
+    "config_make": "./config.mk",
+    "host": {
+        "host_exe": "xil_zlib_8b",
+        "compiler": {
+            "sources": [
+                "./src/host.cpp",
+                "LIB_DIR/L3/src/zlib.cpp",
+                "LIB_DIR/common/libs/xcl2/xcl2.cpp",
+                "LIB_DIR/common/libs/cmdparser/cmdlineparser.cpp",
+                "LIB_DIR/common/libs/logger/logger.cpp",
+                "LIB_DIR/common/thirdParty/xxhash/xxhash.c",
+                "LIB_DIR/common/thirdParty/zlib/adler32.c",
+                "LIB_DIR/common/thirdParty/zlib/crc32.c",
+                "LIB_DIR/common/thirdParty/zlib/deflate.c",
+                "LIB_DIR/common/thirdParty/zlib/zutil.c",
+                "LIB_DIR/common/thirdParty/zlib/trees.c",
+                "LIB_DIR/common/thirdParty/zlib/compress.c",
+                "LIB_DIR/common/thirdParty/zlib/uncompr.c",
+                "LIB_DIR/common/thirdParty/zlib/inflate.c",
+                "LIB_DIR/common/thirdParty/zlib/inftrees.c",
+                "LIB_DIR/common/thirdParty/zlib/inffast.c"
+            ],
+            "includepaths": [
+                "LIB_DIR/L3/include",
+                "LIB_DIR/L1/include/hw",
+                "LIB_DIR/common/thirdParty/zlib"
+            ],
+            "options": "-O3 ",
+            "symbols": [
+                "C_COMPUTE_UNIT=2",
+                "T_COMPUTE_UNIT=2",
+                "H_COMPUTE_UNIT=2",
+                "D_COMPUTE_UNIT=9", 
+                "PARALLEL_BLOCK=8",
+                "OVERLAP_HOST_DEVICE" 
+            ]
+        }
+    },
+    "v++": {
+        "build_datafiles" : [
+            "PROJECT/advanced.ini"
+        ],
+        "compiler": {
+            "includepaths" : [
+                "LIB_DIR/L2/tests/src/"
+            ],
+            "symbols": [
+                "PARALLEL_BLOCK=8",
+                "MULTIPLE_BYTES=8"
+            ],
+            "clflags": [
+                "--config PROJECT/advanced.ini"
+            ]
+        }
+    },
+    "containers": [
+        {
+            "name": "compress_decompress",
+	    "ldclflags": "--kernel_frequency 250 --config PROJECT/opts.ini",
+            "accelerators": [
+                {
+                    "name": "xilLz77Compress",
+                    "location": "LIB_DIR/L2/src/zlib_lz77_compress_mm.cpp",
+                    "num_compute_units": "2"
+                },
+                {
+                    "name": "xilHuffmanKernel",
+                    "location": "LIB_DIR/L2/src/zlib_huffman_enc_mm.cpp",
+                    "num_compute_units": "2"
+                },
+                {
+                    "name": "xilZlibDmReader",
+                    "location": "LIB_DIR/L2/tests/src/zlib_dm_multibyte_rd.cpp",
+                    "num_compute_units": "9"
+                },
+                {
+                    "name": "xilZlibDmWriter",
+                    "location": "LIB_DIR/L2/tests/src/zlib_dm_multibyte_wr.cpp",
+                    "num_compute_units": "9"
+                },
+                {
+                    "name": "xilDecompressFull",
+                    "location": "LIB_DIR/L2/src/zlib_parallelbyte_decompress_full.cpp",
+                    "num_compute_units": "9"
+                }
+            ]
+        }
+    ],
+    "output_files" : "sample.txt.*",
+    "match_ini": "false",
+    "testinfo": {
+        "disable": false,
+        "jobs": [
+            {
+                "index": 0,
+                "dependency": [],
+                "env": "",
+                "cmd": "",
+                "max_memory_MB": 32768,
+                "max_time_min": 300
+            }
+        ],
+        "targets": [
+            "vitis_sw_emu",
+            "vitis_hw_emu",
+            "vitis_hw"
+        ],
+        "category": "canary"
+    }
+}
